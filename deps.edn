@@ -1,0 +1,20 @@
+{:aliases
+ {:test
+  {:extra-paths ["test"],
+   :extra-deps {org.clojure/test.check {:mvn/version "RELEASE"}}},
+  :runner
+  {:extra-deps
+   {com.cognitect/test-runner
+    {:git/url "https://github.com/cognitect-labs/test-runner",
+     :sha "76568540e7f40268ad2b646110f237a60295fa3c"}},
+   :main-opts ["-m" "cognitect.test-runner" "-d" "test"]},
+  :dev
+  {:extra-deps
+   {org.clojure/tools.namespace {:mvn/version "0.2.11"},
+    criterium {:mvn/version "0.4.4"}}}},
+ :deps
+ {camel-snake-kebab {:mvn/version "0.4.0"},
+  clojure.java-time {:mvn/version "0.3.2"},
+  com.rpl/specter {:mvn/version "1.1.2"},
+  org.clojure/clojure {:mvn/version "1.10.0"},
+  org.neo4j.driver/neo4j-java-driver {:mvn/version "1.7.2"}}}
