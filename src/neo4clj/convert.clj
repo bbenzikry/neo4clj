@@ -58,6 +58,10 @@
   [^String item]
   item)
 
+(defmethod neo4j->clj Long
+  [^Long item]
+  item)
+
 (defmethod neo4j->clj Result
   [^Result result]
   (->> (.list result)
