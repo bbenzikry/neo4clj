@@ -5,10 +5,10 @@
             [java-time :as t])
   (:import [org.neo4j.driver Values]
            [org.neo4j.driver.types Entity
-                                   Node
-                                   Relationship]
+            Node
+            Relationship]
            [org.neo4j.driver Record
-                             Result]))
+            Result]))
 
 ;; Pattern used to recognize date-time values from Neo4J
 (def date-time-pattern #"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}")
@@ -54,8 +54,8 @@
   [^String item]
   item)
 
-(defmethod neo4j->clj String
-  [^String item]
+(defmethod neo4j->clj Double
+  [^Double item]
   item)
 
 (defmethod neo4j->clj Long
