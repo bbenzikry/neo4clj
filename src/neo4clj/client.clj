@@ -3,7 +3,7 @@
             [neo4clj.cypher :as cypher]
             [neo4clj.java-interop :as java-interop]
             [neo4clj.query-builder :as builder])
-  (:import  [org.neo4j.driver Driver Session QueryRunner Transaction]))
+  (:import  [org.neo4j.driver Driver Session SessionConfig QueryRunner Transaction]))
 
 (defn connect
   "Connect through bolt to the given neo4j server
@@ -27,17 +27,19 @@
 
 (defn create-session
   "Create a new session on the given Neo4J connection"
-  ^Session [^Driver conn]
-  (.session conn))
+  ^Session
+  ([^Driver conn ^String db]
+   (if (= db nil) (.session conn) (.session conn (SessionConfig/forDatabase db)))))
 
+; TODO: add multi db support here as well
 (defmacro with-session
   "Creates a session with the given name on the given connection and executes the body
   within the session.
 
   The session can be used with the given name in the rest of the body."
   [^Driver conn session & body]
-  `(with-open [~session (create-session ~conn)]
-        ~@body))
+  `(with-open [~session (create-session ~conn nil)]
+     ~@body))
 
 (defn begin-transaction
   "Start a new transaction on the given Neo4J session"
@@ -54,19 +56,20 @@
   [^Transaction trans]
   (.failure trans))
 
+; TODO: multi db here
 (defmacro with-transaction
   "Create a transaction with given name on the given connection execute the body
   within the transaction.
 
   The transaction can be used with the given name in the rest of the body."
   [^Driver conn trans & body]
-  `(with-open [~trans (begin-transaction (create-session ~conn))]
-      (try
-        ~@body
-        (catch Exception e#
-          (rollback ~trans)
-          (throw e#))
-        (finally (commit! ~trans)))))
+  `(with-open [~trans (begin-transaction (create-session ~conn nil))]
+     (try
+       ~@body
+       (catch Exception e#
+         (rollback ~trans)
+         (throw e#))
+       (finally (commit! ~trans)))))
 
 (defmulti execute!
   "Execute the given query on the specified connection with optional parameters"
@@ -74,9 +77,11 @@
 
 (defmethod execute! Driver
   ([^Driver conn ^String query]
-   (execute! conn query {}))
-  ([^Driver conn ^String query ^clojure.lang.IPersistentMap params]
-   (with-open [session (create-session conn)]
+   (execute! conn nil query {}))
+  ([^Driver conn ^String db ^String query]
+   (execute! conn db query {}))
+  ([^Driver conn ^String db ^String query ^clojure.lang.IPersistentMap params]
+   (with-open [session (create-session conn db)]
      (java-interop/execute session query params))))
 
 (defmethod execute! QueryRunner
@@ -100,7 +105,6 @@
         first
         (get ref-id)
         (assoc :ref-id ref-id))))
-
 
 (defn create-node!
   [conn node]
