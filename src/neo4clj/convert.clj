@@ -38,6 +38,38 @@
   [entity]
   nil)
 
+(defmethod neo4j->clj String
+  [^String item]
+  item)
+
+(defmethod neo4j->clj Double
+  [^Double item]
+  item)
+
+(defmethod neo4j->clj Long
+  [^Long item]
+  item)
+
+(defmethod neo4j->clj Boolean
+  [^Boolean item]
+  item)
+
+(defmethod neo4j->clj java.time.LocalDateTime
+  [^java.time.LocalDateTime item]
+  item)
+
+(defmethod neo4j->clj java.time.ZonedDateTime
+  [^java.time.ZonedDateTime item]
+  item)
+
+(defmethod neo4j->clj java.time.LocalDate
+  [^java.time.ZonedDateTime item]
+  item)
+
+(defmethod neo4j->clj java.util.Collections$UnmodifiableMap
+  [entity]
+  (into {} entity))
+
 (defmethod neo4j->clj Node
   [^Node node]
   (assoc (neo4j-entity-basics->clj node)
@@ -50,17 +82,6 @@
          :start-id (.startNodeId rel)
          :end-id (.endNodeId rel)))
 
-(defmethod neo4j->clj String
-  [^String item]
-  item)
-
-(defmethod neo4j->clj Double
-  [^Double item]
-  item)
-
-(defmethod neo4j->clj Long
-  [^Long item]
-  item)
 
 (defmethod neo4j->clj Result
   [^Result result]
